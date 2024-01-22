@@ -148,11 +148,13 @@
   <ItemGroup>
     <ClCompile Include="include\Constants.hpp" />
     <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\InputManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Game.hpp" />
+    <ClInclude Include="include\InputManager.hpp" />
     <ClInclude Include="include\Sprite.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

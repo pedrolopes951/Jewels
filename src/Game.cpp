@@ -4,7 +4,7 @@
 #include <cstdlib>  // Include this header for std::srand
 #include <ctime>    // Include this header for std::time
 
-Game::Game() : m_window(nullptr) {
+Game::Game() : m_window(nullptr), m_inputManager(), m_jewel{0,0} {
     // Ensure that I have seed different for every rand()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
@@ -59,6 +59,30 @@ void Game::run() {
                 quit = true;
             }
         }
+
+        // Handle user input using the InputManager
+        m_inputManager.update();
+
+        // Check if the left mouse button is pressed
+        if (m_inputManager.isMouseButtonPressed(SDL_BUTTON_LEFT)) {
+            int mouseX, mouseY;
+            m_inputManager.getMousePosition(mouseX, mouseY);
+
+            // Convert mouse coordinates to grid position with offset
+            int clickedRow = (mouseY - OFFSETY) / JEWELSIZEX;
+            int clickedCol = (mouseX - OFFSETX) / JEWELSIZEX;
+
+            // Check if the clicked position is within the grid bounds
+            if (clickedRow >= 0 && clickedRow < GRIDY && clickedCol >= 0 && clickedCol < GRIDX) {
+                // Update the selected jewel's position
+                m_jewel.posY = clickedRow;
+                m_jewel.posX = clickedCol;
+
+                // For testing purposes, print the selected jewel's position
+                std::cout << "Selected Jewel: (" << m_jewel.posY << ", " << m_jewel.posX << ")\n";
+            }
+        }
+
 
         // Clear the renderer, prepares for he renderer for drawing the next frame
         SDL_RenderClear(m_renderer);
@@ -137,13 +161,11 @@ void Game::renderJewelGrid()
 {
     //Set the grid in the center of the window
 
-    int offsetx = (WIDTH - GRIDX * JEWELSIZEX) / 2;
-    int offsety = (HEIGHT - GRIDY * JEWELSIZEY) / 2;
 
     for (int row = 0; row < GRIDX; row++) {
         for (int col = 0; col < GRIDY; col++) {
-            int x = offsetx + col * JEWELSIZEX;
-            int y = offsety + row * JEWELSIZEY;
+            int x = OFFSETX + col * JEWELSIZEX;
+            int y = OFFSETY + row * JEWELSIZEY;
 
             // For simplicity, alternate between different jewel types
             JewelType jewelType = m_jewelGrid[row][col];

@@ -4,6 +4,7 @@
 #include <map>
 #include "Sprite.hpp"
 #include <vector>
+#include "InputManager.hpp"
 
 enum class JewelType {
     EMPTY,
@@ -13,6 +14,11 @@ enum class JewelType {
     BLUE,
     ORANGE
     
+};
+
+struct JewelPos {
+    int posX;
+    int posY;
 };
 
 
@@ -47,9 +53,11 @@ private:
     // Check if there is a match for more than 3 jewels
     bool isMatch(JewelType jewelType, int row, int col);
 
-
+   // SDL Functions
    SDL_Window* m_window;
    SDL_Renderer* m_renderer;
+
+   // Sprites
    Sprite m_background;
    // Map of jewel sprites
    std::map<JewelType, Sprite> m_jewelSprites;
@@ -57,6 +65,12 @@ private:
    // 2D array to store the types of jewels inthe grid
    std::vector<std::vector<JewelType>> m_jewelGrid;
 
- 
+   // Input from User handler
+   InputManager m_inputManager;
+
+    // Position of the selected jewel
+   JewelPos m_jewel;
+
+
 };
 
