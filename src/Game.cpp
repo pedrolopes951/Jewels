@@ -1,8 +1,13 @@
 #include "Game.hpp"
 #include "Constants.hpp"
 #include <iostream>
+#include <cstdlib>  // Include this header for std::srand
+#include <ctime>    // Include this header for std::time
 
 Game::Game() : m_window(nullptr) {
+    // Ensure that I have seed different for every rand()
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+
 }
 
 Game::~Game() {
@@ -156,6 +161,7 @@ void Game::initGridJewels()
     // Initialize the 2D vector for storing jewel types
     m_jewelGrid.resize(GRIDY, std::vector<JewelType>(GRIDX, JewelType::EMPTY));
 
+
     // Randomly assign a jewel type to each cell in the grid during initialization
     for (int row = 0; row < GRIDX; row++) {
         for (int col = 0; col < GRIDY; col++) {
@@ -167,6 +173,7 @@ void Game::initGridJewels()
 
 void Game::checkAndRemoveMatches()
 {
+
     // Function to generate a random jewel that doesn't form an immediate match
     auto generateRandomNonMatchingJewel = [this](int row, int col) -> JewelType {
         JewelType randomType;
