@@ -6,6 +6,7 @@
 #include <vector>
 
 enum class JewelType {
+    EMPTY,
     BLACK,
     SILVER,
     PINK,
@@ -39,6 +40,12 @@ private:
 
     //Initialize the jewel Grid
     void initGridJewels();
+
+    // Check for jewels that have matching pattern
+    void checkAndRemoveMatches();
+
+    // Check if there is a match for more than 3 jewels
+    bool isMatch(JewelType jewelType, int row, int col);
 
 
    SDL_Window* m_window;

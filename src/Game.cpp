@@ -61,8 +61,9 @@ void Game::run() {
         // Render background using the Sprite class
         m_background.render(m_renderer, 0, 0, WIDTH, HEIGHT);
 
+
         // Render the 8x8 jewel grid
-        renderJewelGrid();
+        this->renderJewelGrid();
 
 
         // Present the rendered frame to the screen
@@ -104,21 +105,21 @@ bool Game::loadSprites()
         return false;
     }
     // Pink jewel
-    if (!m_jewelSprites[JewelType::SILVER].loadFromFile(m_renderer, "assets/images/Color-3.png")) {
+    if (!m_jewelSprites[JewelType::PINK].loadFromFile(m_renderer, "assets/images/Color-3.png")) {
         SDL_DestroyRenderer(m_renderer);
         SDL_DestroyWindow(m_window);
         SDL_Quit();
         return false;
     }
     // Blue jewel
-    if (!m_jewelSprites[JewelType::PINK].loadFromFile(m_renderer, "assets/images/Color-4.png")) {
+    if (!m_jewelSprites[JewelType::BLUE].loadFromFile(m_renderer, "assets/images/Color-4.png")) {
         SDL_DestroyRenderer(m_renderer);
         SDL_DestroyWindow(m_window);
         SDL_Quit();
         return false;
     }
     // Orange jewel
-    if (!m_jewelSprites[JewelType::BLUE].loadFromFile(m_renderer, "assets/images/Color-5.png")) {
+    if (!m_jewelSprites[JewelType::ORANGE].loadFromFile(m_renderer, "assets/images/Color-5.png")) {
         SDL_DestroyRenderer(m_renderer);
         SDL_DestroyWindow(m_window);
         SDL_Quit();
@@ -140,10 +141,12 @@ void Game::renderJewelGrid()
             int y = offsety + row * JEWELSIZEY;
 
             // For simplicity, alternate between different jewel types
-            JewelType jewelType = m_jewelGrid[row][col];;
+            JewelType jewelType = m_jewelGrid[row][col];
 
-            // Render the jewel sprite at the calculated position
-            m_jewelSprites[jewelType].render(m_renderer, x, y, JEWELSIZEX, JEWELSIZEY);
+            if (jewelType != JewelType::EMPTY) {
+                // Render the jewel sprite at the calculated position
+                m_jewelSprites[jewelType].render(m_renderer, x, y, JEWELSIZEX, JEWELSIZEY);
+            }
         }
     }
 }
@@ -151,12 +154,82 @@ void Game::renderJewelGrid()
 void Game::initGridJewels()
 {
     // Initialize the 2D vector for storing jewel types
-    m_jewelGrid.resize(GRIDY, std::vector<JewelType>(GRIDX, JewelType::BLACK));
+    m_jewelGrid.resize(GRIDY, std::vector<JewelType>(GRIDX, JewelType::EMPTY));
 
     // Randomly assign a jewel type to each cell in the grid during initialization
     for (int row = 0; row < GRIDX; row++) {
         for (int col = 0; col < GRIDY; col++) {
-            m_jewelGrid[row][col] = static_cast<JewelType>(rand() % 4);
+            m_jewelGrid[row][col] = static_cast<JewelType>(rand() % 5 + 1);
         }
     }
+    this->checkAndRemoveMatches();
+}
+
+void Game::checkAndRemoveMatches()
+{
+    // Function to generate a random jewel that doesn't form an immediate match
+    auto generateRandomNonMatchingJewel = [this](int row, int col) -> JewelType {
+        JewelType randomType;
+        do {
+            randomType = static_cast<JewelType>(rand() % 5 + 1);
+        } while (isMatch(randomType, row, col));
+        return randomType;
+        };
+
+    // Check for Horizontal Matches 3 or more
+    auto processHorizontalMatch = [&](int row, int col) {
+        JewelType currentType = m_jewelGrid[row][col];
+        if (currentType != JewelType::EMPTY &&
+            currentType == m_jewelGrid[row][col + 1] &&
+            currentType == m_jewelGrid[row][col + 2]) {
+            m_jewelGrid[row][col] = generateRandomNonMatchingJewel(row, col);
+            m_jewelGrid[row][col + 1] = generateRandomNonMatchingJewel(row, col + 1);
+            m_jewelGrid[row][col + 2] = generateRandomNonMatchingJewel(row, col + 2);
+        }
+        };
+
+    // Check for Vertical Matches 3 or more
+    auto processVerticalMatch = [&](int row, int col) {
+        JewelType currentType = m_jewelGrid[row][col];
+        if (currentType != JewelType::EMPTY &&
+            currentType == m_jewelGrid[row + 1][col] &&
+            currentType == m_jewelGrid[row + 2][col]) {
+            m_jewelGrid[row][col] = generateRandomNonMatchingJewel(row, col);
+            m_jewelGrid[row + 1][col] = generateRandomNonMatchingJewel(row + 1, col);
+            m_jewelGrid[row + 2][col] = generateRandomNonMatchingJewel(row + 2, col);
+        }
+        };
+
+    // Process matches
+    for (int row = 0; row < GRIDY; ++row) {
+        for (int col = 0; col < GRIDX - 2; ++col) {
+            processHorizontalMatch(row, col);
+        }
+    }
+
+    for (int row = 0; row < GRIDY - 2; ++row) {
+        for (int col = 0; col < GRIDX; ++col) {
+            processVerticalMatch(row, col);
+        }
+    }
+
+}
+
+bool Game::isMatch(JewelType jewelType, int row, int col)
+{
+    // Check for horizontal match
+    if ((col >= 2) &&
+        (m_jewelGrid[row][col - 1] == jewelType) &&
+        (m_jewelGrid[row][col - 2] == jewelType)) {
+        return true;
+    }
+
+    // Check for vertical match
+    if ((row >= 2) &&
+        (m_jewelGrid[row - 1][col] == jewelType) &&
+        (m_jewelGrid[row - 2][col] == jewelType)) {
+        return true;
+    }
+
+    return false;
 }
