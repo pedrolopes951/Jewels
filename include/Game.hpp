@@ -16,10 +16,6 @@ enum class JewelType {
     
 };
 
-struct JewelPos {
-    int posX;
-    int posY;
-};
 
 
 class Game
@@ -53,6 +49,12 @@ private:
     // Check if there is a match for more than 3 jewels
     bool isMatch(JewelType jewelType, int row, int col);
 
+    // Convert the visual position of the jewl to grid coordinates
+    JewelPos snapToGrid(int x, int y);
+
+    // Swap the Position of the two jewels in the jewel grid
+    void swapJewels(const JewelPos& pos1, const JewelPos& pos2);
+
    // SDL Functions
    SDL_Window* m_window;
    SDL_Renderer* m_renderer;
@@ -68,8 +70,7 @@ private:
    // Input from User handler
    InputManager m_inputManager;
 
-    // Position of the selected jewel
-   JewelPos m_jewel;
+  
 
 
 };

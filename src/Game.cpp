@@ -4,7 +4,7 @@
 #include <cstdlib>  // Include this header for std::srand
 #include <ctime>    // Include this header for std::time
 
-Game::Game() : m_window(nullptr), m_inputManager(), m_jewel{0,0} {
+Game::Game() : m_window(nullptr), m_inputManager(){
     // Ensure that I have seed different for every rand()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
@@ -47,7 +47,6 @@ bool Game::init() {
 
     return true;
 }
-
 void Game::run() {
     bool quit = false;
     SDL_Event e;
@@ -63,40 +62,32 @@ void Game::run() {
         // Handle user input using the InputManager
         m_inputManager.update();
 
-        // Check if the left mouse button is pressed
-        if (m_inputManager.isMouseButtonPressed(SDL_BUTTON_LEFT)) {
-            int mouseX, mouseY;
-            m_inputManager.getMousePosition(mouseX, mouseY);
-
-            // Convert mouse coordinates to grid position with offset
-            int clickedRow = (mouseY - OFFSETY) / JEWELSIZEX;
-            int clickedCol = (mouseX - OFFSETX) / JEWELSIZEX;
-
-            // Check if the clicked position is within the grid bounds
-            if (clickedRow >= 0 && clickedRow < GRIDY && clickedCol >= 0 && clickedCol < GRIDX) {
-                // Update the selected jewel's position
-                m_jewel.posY = clickedRow;
-                m_jewel.posX = clickedCol;
-
-                // For testing purposes, print the selected jewel's position
-                std::cout << "Selected Jewel: (" << m_jewel.posY << ", " << m_jewel.posX << ")\n";
-            }
-        }
-
-
-        // Clear the renderer, prepares for he renderer for drawing the next frame
+        // Clear the renderer, prepares it for drawing the next frame
         SDL_RenderClear(m_renderer);
 
-        // Render background using the Sprite class
+        // Render background
         m_background.render(m_renderer, 0, 0, WIDTH, HEIGHT);
 
-
-        // Render the 8x8 jewel grid
+        // Render the jewel grid
         this->renderJewelGrid();
 
+        // If a jewel is being dragged, render it at the dragged position
+        if (m_inputManager.isDraggingInProgress()) {
+            // Get the position of the jewel being dragged
+            int dragX = m_inputManager.getJewelVisualPosX();
+            int dragY = m_inputManager.getJewelVisualPosY();
+            JewelPos draggedJewelPos = m_inputManager.getDraggedJewel();
+            JewelType draggedJewelType = m_jewelGrid[draggedJewelPos.posY][draggedJewelPos.posX];
 
-        // Present the rendered frame to the screen
+            // Render the dragged jewel sprite at the mouse cursor position
+            m_jewelSprites[draggedJewelType].render(m_renderer, dragX, dragY, JEWELSIZEX, JEWELSIZEY);
+        }
+
+        // Update the screen with any rendering performed since the previous call
         SDL_RenderPresent(m_renderer);
+
+        // Implement a delay to cap the frame rate
+        SDL_Delay(16);
     }
 }
 
@@ -262,3 +253,33 @@ bool Game::isMatch(JewelType jewelType, int row, int col)
 
     return false;
 }
+
+JewelPos Game::snapToGrid(int x, int y)
+{
+    // Adjust the position based on the offset and size of the jewels
+    x -= OFFSETX;
+    y -= OFFSETY;
+
+    // Clamp the position to be within the bounds of the grid
+    x = std::max(0, std::min(x, (int)WIDTH - (int)JEWELSIZEX));
+    y = std::max(0, std::min(y, (int)HEIGHT - (int)JEWELSIZEY));
+
+    // Convert from pixel coordinates to grid coordinates
+    JewelPos gridPos;
+    gridPos.posX = x / JEWELSIZEX;
+    gridPos.posY = y / JEWELSIZEY;
+
+    return gridPos;
+}
+
+void Game::swapJewels(const JewelPos& posA, const JewelPos& posB)
+{
+    // Check if the positions are within the grid bounds
+    if (posA.posX >= 0 && posA.posX < GRIDX && posA.posY >= 0 && posA.posY < GRIDY &&
+        posB.posX >= 0 && posB.posX < GRIDX && posB.posY >= 0 && posB.posY < GRIDY) {
+        // Swap the jewels in the grid
+        std::swap(m_jewelGrid[posA.posY][posA.posX], m_jewelGrid[posB.posY][posB.posX]);
+    }
+}
+
+
