@@ -323,8 +323,19 @@ void Game::swapJewels(const JewelPos& posA, const JewelPos& posB)
     // Check if the positions are within the grid bounds
     if (posA.posX >= 0 && posA.posX < GRIDX && posA.posY >= 0 && posA.posY < GRIDY &&
         posB.posX >= 0 && posB.posX < GRIDX && posB.posY >= 0 && posB.posY < GRIDY) {
-        // Swap the jewels in the grid
-        std::swap(m_jewelGrid[posA.posY][posA.posX], m_jewelGrid[posB.posY][posB.posX]);
+
+        // Check if the jewels are adjacent
+        bool isAdjacent = (posA.posX == posB.posX && std::abs(posA.posY - posB.posY) == 1) ||
+            (posA.posY == posB.posY && std::abs(posA.posX - posB.posX) == 1);
+
+        if (isAdjacent) {
+            // Swap the jewels in the grid
+            std::swap(m_jewelGrid[posA.posY][posA.posX], m_jewelGrid[posB.posY][posB.posX]);
+        }
+        else {
+            // If not adjacent, do nothing or handle the situation as needed
+            // Make a sound maybe if there is no match 
+        }
     }
 }
 
