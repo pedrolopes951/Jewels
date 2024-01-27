@@ -98,7 +98,7 @@ void Game::run() {
             }
         }
         else if (m_swapPerformed) {
-            std::cout << "Resetting swap flag" << std::endl;
+            //std::cout << "Resetting swap flag" << std::endl;
             m_swapPerformed = false;
         }
 
@@ -276,23 +276,47 @@ bool Game::isMatch(JewelType jewelType, int row, int col)
     return false;
 }
 
-JewelPos Game::snapToGrid(int x, int y)
-{
-    // Adjust the position based on the offset and size of the jewels
-    x -= OFFSETX;
-    y -= OFFSETY;
+JewelPos Game::snapToGrid(int x, int y) {
+    // Adjust to get the center of the jewel sprite
+    x += JEWELSIZEX / 2 - OFFSETX;
+    y += JEWELSIZEY / 2 - OFFSETY;
 
-    // Clamp the position to be within the bounds of the grid
-    x = std::max(0, std::min(x, (int)WIDTH - (int)JEWELSIZEX));
-    y = std::max(0, std::min(y, (int)HEIGHT - (int)JEWELSIZEY));
+    // Convert from pixel coordinates to the nearest grid coordinates
+    int gridPosX = x / JEWELSIZEX;
+    int gridPosY = y / JEWELSIZEY;
 
-    // Convert from pixel coordinates to grid coordinates
-    JewelPos gridPos;
-    gridPos.posX = x / JEWELSIZEX;
-    gridPos.posY = y / JEWELSIZEY;
+    // Calculate the overlapping area with the nearest cell
+    int cellStartX = gridPosX * JEWELSIZEX;
+    int cellStartY = gridPosY * JEWELSIZEY;
+    int cellEndX = cellStartX + JEWELSIZEX;
+    int cellEndY = cellStartY + JEWELSIZEY;
 
-    return gridPos;
+    int overlapLeft = std::max(x - (int)JEWELSIZEX / 2, cellStartX);
+    int overlapTop = std::max(y - (int)JEWELSIZEY / 2, cellStartY);
+    int overlapRight = std::min(x + (int)JEWELSIZEX / 2, cellEndX);
+    int overlapBottom = std::min(y + (int)JEWELSIZEY / 2, cellEndY);
+    int overlapWidth = std::max(0, overlapRight - overlapLeft);
+    int overlapHeight = std::max(0, overlapBottom - overlapTop);
+
+    double overlapArea = overlapWidth * overlapHeight;
+    double cellArea = JEWELSIZEX * JEWELSIZEY;
+    double overlapPercentage = overlapArea / cellArea;
+
+    // Check if the overlap is at least 80%
+    if (overlapPercentage >= 0.8) {
+        // Clamp grid coordinates to grid dimensions
+        gridPosX = std::max(0, std::min(gridPosX, (int) GRIDX - 1));
+        gridPosY = std::max(0, std::min(gridPosY, (int)GRIDY - 1));
+
+        return { gridPosX, gridPosY };
+    }
+    else {
+        // If the overlap is less than 80%, return the original position
+        return m_inputManager.getDraggedJewel();
+    }
 }
+
+
 
 void Game::swapJewels(const JewelPos& posA, const JewelPos& posB)
 {
