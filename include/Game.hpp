@@ -52,6 +52,8 @@ private:
     // check temporaly if the swap is valid
     bool willSwapMatch(const JewelPos& posA, const JewelPos& posB);
 
+    bool checkPotentialMatchAt(int x, int y);
+
     // Apply Gravity to the jewels after matching to fall down;
 
     void applyGravity();

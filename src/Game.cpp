@@ -173,19 +173,45 @@ void Game::checkForMatches() {
     } while (matchesFound);
 }
 
-bool Game::willSwapMatch(const JewelPos& posA, const JewelPos& posB)
-{
+bool Game::willSwapMatch(const JewelPos& posA, const JewelPos& posB) {
     // Temporarily swap jewels
     std::swap(m_jewelGrid[posA.posY][posA.posX], m_jewelGrid[posB.posY][posB.posX]);
 
     // Check if the swap results in a match
-    bool match = isMatch(m_jewelGrid[posA.posY][posA.posX], posA.posY, posA.posX) ||
-        isMatch(m_jewelGrid[posB.posY][posB.posX], posB.posY, posB.posX);
+    bool matchA = checkPotentialMatchAt(posA.posX, posA.posY);
+    bool matchB = checkPotentialMatchAt(posB.posX, posB.posY);
 
     // Swap back to original positions
     std::swap(m_jewelGrid[posA.posY][posA.posX], m_jewelGrid[posB.posY][posB.posX]);
 
-    return match;
+    return matchA || matchB;
+}
+
+bool Game::checkPotentialMatchAt(int x, int y) {
+    if (x < 0 || x >= GRIDX || y < 0 || y >= GRIDY) {
+        // Out of grid bounds
+        return false;
+    }
+
+    JewelType jewelType = m_jewelGrid[y][x];
+
+    // Check horizontal matches
+    if (x > 1 && m_jewelGrid[y][x - 1] == jewelType && m_jewelGrid[y][x - 2] == jewelType) {
+        return true;
+    }
+    if (x < GRIDX - 2 && m_jewelGrid[y][x + 1] == jewelType && m_jewelGrid[y][x + 2] == jewelType) {
+        return true;
+    }
+
+    // Check vertical matches
+    if (y > 1 && m_jewelGrid[y - 1][x] == jewelType && m_jewelGrid[y - 2][x] == jewelType) {
+        return true;
+    }
+    if (y < GRIDY - 2 && m_jewelGrid[y + 1][x] == jewelType && m_jewelGrid[y + 2][x] == jewelType) {
+        return true;
+    }
+
+    return false;
 }
 
 void Game::clear() {
