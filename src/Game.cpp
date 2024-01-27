@@ -57,6 +57,32 @@ void Game::run() {
             if (e.type == SDL_QUIT) {
                 quit = true;
             }
+            // Handle mouse click events
+            if (e.type == SDL_MOUSEBUTTONDOWN) {
+                int mouseX = e.button.x;
+                int mouseY = e.button.y;
+
+                // Convert mouse position to grid position
+                JewelPos clickPos = { (mouseX - OFFSETX) / JEWELSIZEX, (mouseY - OFFSETY) / JEWELSIZEY };
+
+                // First click
+                if (!m_inputManager.isFirstClickActive()) {
+                    m_inputManager.setFirstClickPos(clickPos);
+                }
+                // Second click
+                else {
+                    if (clickPos != m_inputManager.getFirstClickPos() && willSwapMatch(m_inputManager.getFirstClickPos(), clickPos)) {
+                        swapJewels(m_inputManager.getFirstClickPos(), clickPos);
+                        checkAndRemoveMatches();
+                        applyGravity();
+                        fillEmptySpaces();
+                    }
+                    else {
+                        std::cout << "Swap not valid or does not result in a match." << std::endl;
+                    }
+                    m_inputManager.resetClicks();
+                }
+            }
         }
 
         // Handle user input using the InputManager
@@ -70,6 +96,12 @@ void Game::run() {
 
         // Render the jewel grid
         this->renderJewelGrid();
+
+        // Check for and handle matches
+         // Check for and handle matches
+        this->checkForMatches();
+
+
 
         // If a jewel is being dragged, render it at the dragged position
         if (m_inputManager.isDraggingInProgress()) {
@@ -89,10 +121,16 @@ void Game::run() {
                 JewelPos finalPos = snapToGrid(m_inputManager.getJewelVisualPosX(), m_inputManager.getJewelVisualPosY());
                 JewelPos originalPos = m_inputManager.getDraggedJewel();
 
-                if (finalPos != originalPos) {
+                if (finalPos != originalPos && this->willSwapMatch(originalPos, finalPos)) {
                     std::cout << "Performing Swap: " << originalPos.posX << "," << originalPos.posY << " with " << finalPos.posX << "," << finalPos.posY << std::endl;
-                    swapJewels(originalPos, finalPos);
+                    this->swapJewels(originalPos, finalPos);
+
                     m_swapPerformed = true;
+                    checkAndRemoveMatches();
+                    applyGravity();
+                    fillEmptySpaces();
+                }else{
+                std::cout << "Swap does not result in a match. Swap not performed." << std::endl;
                 }
                 m_inputManager.resetDragging();
             }
@@ -102,7 +140,6 @@ void Game::run() {
             m_swapPerformed = false;
         }
 
-        //std::cout << "Dragging Ended: " << m_inputManager.isDraggingEnded() << ", Swap Performed: " << m_swapPerformed << std::endl;
 
 
         // Update the screen with any rendering performed since the previous call
@@ -111,6 +148,44 @@ void Game::run() {
         // Implement a delay to cap the frame rate
         SDL_Delay(16);
     }
+}
+
+void Game::checkForMatches() {
+    bool matchesFound;
+    do {
+        matchesFound = false;
+        for (int row = 0; row < GRIDX; ++row) {
+            for (int col = 0; col < GRIDY; ++col) {
+                if (m_jewelGrid[row][col] != JewelType::EMPTY && isMatch(m_jewelGrid[row][col], row, col)) {
+                    matchesFound = true;
+                    break;
+                }
+            }
+            if (matchesFound) break;
+        }
+
+        if (matchesFound) {
+            checkAndRemoveMatches();
+            applyGravity();
+            fillEmptySpaces();
+        }
+
+    } while (matchesFound);
+}
+
+bool Game::willSwapMatch(const JewelPos& posA, const JewelPos& posB)
+{
+    // Temporarily swap jewels
+    std::swap(m_jewelGrid[posA.posY][posA.posX], m_jewelGrid[posB.posY][posB.posX]);
+
+    // Check if the swap results in a match
+    bool match = isMatch(m_jewelGrid[posA.posY][posA.posX], posA.posY, posA.posX) ||
+        isMatch(m_jewelGrid[posB.posY][posB.posX], posB.posY, posB.posX);
+
+    // Swap back to original positions
+    std::swap(m_jewelGrid[posA.posY][posA.posX], m_jewelGrid[posB.posY][posB.posX]);
+
+    return match;
 }
 
 void Game::clear() {
@@ -172,104 +247,131 @@ bool Game::loadSprites()
 
 void Game::renderJewelGrid()
 {
-    //Set the grid in the center of the window
-
+    JewelPos draggedJewelPos = m_inputManager.getDraggedJewel();
 
     for (int row = 0; row < GRIDX; row++) {
         for (int col = 0; col < GRIDY; col++) {
+            // Skip rendering the jewel at the dragged position
+            if (m_inputManager.isDraggingInProgress() &&
+                draggedJewelPos.posX == col && draggedJewelPos.posY == row) {
+                continue;
+            }
+
             int x = OFFSETX + col * JEWELSIZEX;
             int y = OFFSETY + row * JEWELSIZEY;
-
-            // For simplicity, alternate between different jewel types
             JewelType jewelType = m_jewelGrid[row][col];
 
             if (jewelType != JewelType::EMPTY) {
-                // Render the jewel sprite at the calculated position
                 m_jewelSprites[jewelType].render(m_renderer, x, y, JEWELSIZEX, JEWELSIZEY);
             }
         }
     }
 }
 
-void Game::initGridJewels()
-{
+void Game::initGridJewels() {
     // Initialize the 2D vector for storing jewel types
     m_jewelGrid.resize(GRIDY, std::vector<JewelType>(GRIDX, JewelType::EMPTY));
 
-
-    // Randomly assign a jewel type to each cell in the grid during initialization
     for (int row = 0; row < GRIDX; row++) {
         for (int col = 0; col < GRIDY; col++) {
-            m_jewelGrid[row][col] = static_cast<JewelType>(rand() % 5 + 1);
+            do {
+                m_jewelGrid[row][col] = static_cast<JewelType>(rand() % 5 + 1);
+            } while ((col >= 2 && isMatch(m_jewelGrid[row][col], row, col - 1)) ||
+                (row >= 2 && isMatch(m_jewelGrid[row][col], row - 1, col)));
         }
     }
-    this->checkAndRemoveMatches();
 }
 
-void Game::checkAndRemoveMatches()
+void Game::checkAndRemoveMatches() {
+    std::vector<std::vector<bool>> matched(GRIDX, std::vector<bool>(GRIDY, false));
+
+    // Check for horizontal matches
+    for (int row = 0; row < GRIDX; row++) {
+        for (int col = 0; col <= GRIDY - 3; col++) {
+            if (m_jewelGrid[row][col] != JewelType::EMPTY &&
+                m_jewelGrid[row][col] == m_jewelGrid[row][col + 1] &&
+                m_jewelGrid[row][col] == m_jewelGrid[row][col + 2]) {
+                matched[row][col] = matched[row][col + 1] = matched[row][col + 2] = true;
+            }
+        }
+    }
+
+    // Check for vertical matches
+    for (int col = 0; col < GRIDY; col++) {
+        for (int row = 0; row <= GRIDX - 3; row++) {
+            if (m_jewelGrid[row][col] != JewelType::EMPTY &&
+                m_jewelGrid[row][col] == m_jewelGrid[row + 1][col] &&
+                m_jewelGrid[row][col] == m_jewelGrid[row + 2][col]) {
+                matched[row][col] = matched[row + 1][col] = matched[row + 2][col] = true;
+            }
+        }
+    }
+
+    // Replace matched jewels with EMPTY
+    for (int row = 0; row < GRIDX; row++) {
+        for (int col = 0; col < GRIDY; col++) {
+            if (matched[row][col]) {
+                m_jewelGrid[row][col] = JewelType::EMPTY;
+            }
+        }
+    }
+}
+
+void Game::applyGravity()
 {
-
-    // Function to generate a random jewel that doesn't form an immediate match
-    auto generateRandomNonMatchingJewel = [this](int row, int col) -> JewelType {
-        JewelType randomType;
-        do {
-            randomType = static_cast<JewelType>(rand() % 5 + 1);
-        } while (isMatch(randomType, row, col));
-        return randomType;
-        };
-
-    // Check for Horizontal Matches 3 or more
-    auto processHorizontalMatch = [&](int row, int col) {
-        JewelType currentType = m_jewelGrid[row][col];
-        if (currentType != JewelType::EMPTY &&
-            currentType == m_jewelGrid[row][col + 1] &&
-            currentType == m_jewelGrid[row][col + 2]) {
-            m_jewelGrid[row][col] = generateRandomNonMatchingJewel(row, col);
-            m_jewelGrid[row][col + 1] = generateRandomNonMatchingJewel(row, col + 1);
-            m_jewelGrid[row][col + 2] = generateRandomNonMatchingJewel(row, col + 2);
-        }
-        };
-
-    // Check for Vertical Matches 3 or more
-    auto processVerticalMatch = [&](int row, int col) {
-        JewelType currentType = m_jewelGrid[row][col];
-        if (currentType != JewelType::EMPTY &&
-            currentType == m_jewelGrid[row + 1][col] &&
-            currentType == m_jewelGrid[row + 2][col]) {
-            m_jewelGrid[row][col] = generateRandomNonMatchingJewel(row, col);
-            m_jewelGrid[row + 1][col] = generateRandomNonMatchingJewel(row + 1, col);
-            m_jewelGrid[row + 2][col] = generateRandomNonMatchingJewel(row + 2, col);
-        }
-        };
-
-    // Process matches
-    for (int row = 0; row < GRIDY; ++row) {
-        for (int col = 0; col < GRIDX - 2; ++col) {
-            processHorizontalMatch(row, col);
+    for (int col = 0; col < GRIDY; col++) {
+        int emptyRow = -1; // Start with no empty row found
+        for (int row = GRIDX - 1; row >= 0; row--) {
+            if (m_jewelGrid[row][col] == JewelType::EMPTY && emptyRow == -1) {
+                emptyRow = row; // Found the first empty row from the bottom
+            }
+            else if (m_jewelGrid[row][col] != JewelType::EMPTY && emptyRow != -1) {
+                m_jewelGrid[emptyRow][col] = m_jewelGrid[row][col];
+                m_jewelGrid[row][col] = JewelType::EMPTY;
+                emptyRow--; // Move up to the next empty row
+            }
         }
     }
+}
 
-    for (int row = 0; row < GRIDY - 2; ++row) {
-        for (int col = 0; col < GRIDX; ++col) {
-            processVerticalMatch(row, col);
+void Game::fillEmptySpaces()
+{
+    for (int col = 0; col < GRIDY; col++) {
+        for (int row = 0; row < GRIDX; row++) {
+            if (m_jewelGrid[row][col] == JewelType::EMPTY) {
+                m_jewelGrid[row][col] = static_cast<JewelType>(rand() % 5 + 1);
+            }
         }
     }
-
 }
 
 bool Game::isMatch(JewelType jewelType, int row, int col)
 {
-    // Check for horizontal match
-    if ((col >= 2) &&
-        (m_jewelGrid[row][col - 1] == jewelType) &&
-        (m_jewelGrid[row][col - 2] == jewelType)) {
+    // Check left
+    if (col >= 2 &&
+        m_jewelGrid[row][col - 1] == jewelType &&
+        m_jewelGrid[row][col - 2] == jewelType) {
         return true;
     }
 
-    // Check for vertical match
-    if ((row >= 2) &&
-        (m_jewelGrid[row - 1][col] == jewelType) &&
-        (m_jewelGrid[row - 2][col] == jewelType)) {
+    // Check right
+    if (col <= GRIDY - 3 &&
+        m_jewelGrid[row][col + 1] == jewelType &&
+        m_jewelGrid[row][col + 2] == jewelType) {
+        return true;
+    }
+
+    // Check up
+    if (row >= 2 &&
+        m_jewelGrid[row - 1][col] == jewelType &&
+        m_jewelGrid[row - 2][col] == jewelType) {
+        return true;
+    }
+
+    // Check down
+    if (row <= GRIDX - 3 &&
+        m_jewelGrid[row + 1][col] == jewelType &&
+        m_jewelGrid[row + 2][col] == jewelType) {
         return true;
     }
 

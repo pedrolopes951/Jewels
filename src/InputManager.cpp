@@ -68,6 +68,7 @@ void InputManager::update() {
 
 bool InputManager::isMouseButtonPressed(Uint8 button) {
     if (button <= SDL_BUTTON_X2) {
+        //std::cout << "Button clicked" << std::endl;
         return m_mouseButtonsState[button];
     }
     return false;
@@ -128,3 +129,37 @@ int InputManager::getJewelVisualPosX() const {
 int InputManager::getJewelVisualPosY() const {
     return m_jewelVisualPosY;
 }
+
+void InputManager::handleFirstClick(int x, int y) {
+    firstClickPos = { x / (int)JEWELSIZEX, y / (int)JEWELSIZEY };
+    firstClickActive = true;
+}
+
+void InputManager::handleSecondClick(int x, int y) {
+    secondClickPos = { x / (int)JEWELSIZEX, y / (int)JEWELSIZEY };
+}
+
+bool InputManager::isFirstClickActive() const {
+    return firstClickActive;
+}
+
+JewelPos InputManager::getFirstClickPos() const {
+    return firstClickPos;
+}
+
+JewelPos InputManager::getSecondClickPos() const {
+    return secondClickPos;
+}
+
+void InputManager::resetClicks() {
+    firstClickActive = false;
+}
+void InputManager::setFirstClickPos(const JewelPos& pos) {
+    firstClickPos = pos;
+    firstClickActive = true;
+}
+
+void InputManager::setSecondClickPos(const JewelPos& pos) {
+    secondClickPos = pos;
+}
+

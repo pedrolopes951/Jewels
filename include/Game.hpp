@@ -46,6 +46,19 @@ private:
     // Check for jewels that have matching pattern
     void checkAndRemoveMatches();
 
+    // Check if any matches exist in the grid
+    void checkForMatches();
+
+    // check temporaly if the swap is valid
+    bool willSwapMatch(const JewelPos& posA, const JewelPos& posB);
+
+    // Apply Gravity to the jewels after matching to fall down;
+
+    void applyGravity();
+
+    // After Matching fill the empty spaces
+    void fillEmptySpaces();
+
     // Check if there is a match for more than 3 jewels
     bool isMatch(JewelType jewelType, int row, int col);
 

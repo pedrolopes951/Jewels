@@ -57,6 +57,19 @@ public:
     int getJewelVisualPosX() const;
     int getJewelVisualPosY() const;
 
+    // Add new methods for click-based swapping
+    void handleFirstClick(int x, int y);
+    void handleSecondClick(int x, int y);
+    bool isFirstClickActive() const;
+    JewelPos getFirstClickPos() const;
+    JewelPos getSecondClickPos() const;
+    void resetClicks();
+    void setFirstClickPos(const JewelPos& pos);
+
+    void setSecondClickPos(const JewelPos& pos);
+
+
+
 private:
     bool m_mouseButtonsState[SDL_BUTTON_X2 + 1];
     int m_mouseX, m_mouseY;
@@ -80,6 +93,11 @@ private:
 
     // Check if the leftbutton from the last frame 
     bool m_wasLeftMouseButtonDown;
+
+    // Add new members for the click-based swapping
+    bool firstClickActive = false;
+    JewelPos firstClickPos;
+    JewelPos secondClickPos;
 
 
 };
