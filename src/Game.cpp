@@ -81,7 +81,29 @@ void Game::run() {
 
             // Render the dragged jewel sprite at the mouse cursor position
             m_jewelSprites[draggedJewelType].render(m_renderer, dragX, dragY, JEWELSIZEX, JEWELSIZEY);
+           std::cout << "Swapping jewels at mouse cursor: " << draggedJewelPos.posX << "," << draggedJewelPos.posY << std::endl;
+
         }
+        if (m_inputManager.isDraggingEnded()) {
+            if (!m_swapPerformed) {
+                JewelPos finalPos = snapToGrid(m_inputManager.getJewelVisualPosX(), m_inputManager.getJewelVisualPosY());
+                JewelPos originalPos = m_inputManager.getDraggedJewel();
+
+                if (finalPos != originalPos) {
+                    std::cout << "Performing Swap: " << originalPos.posX << "," << originalPos.posY << " with " << finalPos.posX << "," << finalPos.posY << std::endl;
+                    swapJewels(originalPos, finalPos);
+                    m_swapPerformed = true;
+                }
+                m_inputManager.resetDragging();
+            }
+        }
+        else if (m_swapPerformed) {
+            std::cout << "Resetting swap flag" << std::endl;
+            m_swapPerformed = false;
+        }
+
+        //std::cout << "Dragging Ended: " << m_inputManager.isDraggingEnded() << ", Swap Performed: " << m_swapPerformed << std::endl;
+
 
         // Update the screen with any rendering performed since the previous call
         SDL_RenderPresent(m_renderer);

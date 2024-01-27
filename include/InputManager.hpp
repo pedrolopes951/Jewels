@@ -7,6 +7,14 @@
 struct JewelPos {
     int posX;
     int posY;
+    bool operator==(const JewelPos& other) const {
+        return posX == other.posX && posY == other.posY;
+    }
+
+    // Overload the '!=' operator
+    bool operator!=(const JewelPos& other) const {
+        return !(*this == other);
+    }
 };
 
 

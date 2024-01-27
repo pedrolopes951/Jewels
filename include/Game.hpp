@@ -55,6 +55,8 @@ private:
     // Swap the Position of the two jewels in the jewel grid
     void swapJewels(const JewelPos& pos1, const JewelPos& pos2);
 
+    bool m_swapPerformed{false};
+
    // SDL Functions
    SDL_Window* m_window;
    SDL_Renderer* m_renderer;

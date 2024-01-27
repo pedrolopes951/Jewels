@@ -80,7 +80,9 @@ void InputManager::getMousePosition(int& x, int& y) {
 
 void InputManager::startDragging(const JewelPos& initialPos) {
     m_isDragging = true;
-    m_jewelDragPos = initialPos;
+    m_jewelDragPos = initialPos; // Grid position where the drag started
+    m_jewel = initialPos;        // This should be the correct position of the dragged jewel
+
     m_initialClickX = m_mouseX;
     m_initialClickY = m_mouseY;
 
@@ -88,6 +90,7 @@ void InputManager::startDragging(const JewelPos& initialPos) {
     m_jewelVisualPosX = OFFSETX + initialPos.posX * JEWELSIZEX;
     m_jewelVisualPosY = OFFSETY + initialPos.posY * JEWELSIZEY;
 }
+
 
 void InputManager::updateDragging() {
     // Calculate the visual position based on the mouse movement
