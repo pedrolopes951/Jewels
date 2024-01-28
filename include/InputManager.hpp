@@ -22,11 +22,11 @@ class InputManager {
 public:
     InputManager();
 
-    // Initialize the input manager
-    void initialize();
+    
 
     // Update input state
     void update();
+
 
     // Check if a mouse button is currently pressed
     bool isMouseButtonPressed(Uint8 button);
@@ -58,8 +58,6 @@ public:
     int getJewelVisualPosY() const;
 
     // Add new methods for click-based swapping
-    void handleFirstClick(int x, int y);
-    void handleSecondClick(int x, int y);
     bool isFirstClickActive() const;
     JewelPos getFirstClickPos() const;
     JewelPos getSecondClickPos() const;
@@ -71,6 +69,11 @@ public:
 
 
 private:
+
+
+    // Initialize the input manager
+    void initialize();
+
     bool m_mouseButtonsState[SDL_BUTTON_X2 + 1];
     int m_mouseX, m_mouseY;
 
@@ -95,9 +98,9 @@ private:
     bool m_wasLeftMouseButtonDown;
 
     // Add new members for the click-based swapping
-    bool firstClickActive = false;
-    JewelPos firstClickPos;
-    JewelPos secondClickPos;
+    bool m_firstClickActive;
+    JewelPos m_firstClickPos;
+    JewelPos m_secondClickPos;
 
 
 };

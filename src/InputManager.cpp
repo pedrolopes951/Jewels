@@ -3,7 +3,7 @@
 
 
 InputManager::InputManager() {
-    initialize();
+    this->initialize();
 }
 
 void InputManager::initialize() {
@@ -14,18 +14,20 @@ void InputManager::initialize() {
     m_mouseX = 0;
     m_mouseY = 0;
 
+    m_wasLeftMouseButtonDown = false; // Initialize this to false
+
     m_isDragging = false;
-    m_jewelDragPos.posX = 0;
-    m_jewelDragPos.posY = 0;
     m_jewelVisualPosX = 0;
     m_jewelVisualPosY = 0;
+
+    m_firstClickActive = false;
     m_initialClickX = 0;
     m_initialClickY = 0;
 
-    m_wasLeftMouseButtonDown = false; // Initialize this to false
 
 
 }
+
 
 void InputManager::update() {
     // Update mouse state
@@ -36,54 +38,52 @@ void InputManager::update() {
     m_mouseX = x;
     m_mouseY = y;
 
-    bool leftMouseButtonPressed = (buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    bool leftMouseButtonPressed = SDL_GetMouseState(nullptr, nullptr) == SDL_BUTTON(SDL_BUTTON_LEFT); // Check if it was the left button pressed or not
 
     if (leftMouseButtonPressed && !m_isDragging) {
         // Mouse button is being pressed and we are not already dragging
         int mouseX, mouseY;
         this->getMousePosition(mouseX, mouseY);
 
-        // Convert mouse coordinates to grid position with offset
+        // Convert mouse coordinates to grid position with offset (0,0) to (7,7)
         int clickedRow = (mouseY - OFFSETY) / JEWELSIZEX;
-        int clickedCol = (mouseX - OFFSETX) / JEWELSIZEX;
+        int clickedCol = (mouseX - OFFSETX) / JEWELSIZEY;
 
         // Check if the clicked position is within the grid bounds
         if (clickedRow >= 0 && clickedRow < GRIDY && clickedCol >= 0 && clickedCol < GRIDX) {
+            /*std::cout << clickedRow << std::endl;
+            std::cout << clickedCol << std::endl;*/
+
             // Start dragging if a jewel was clicked
-            startDragging({ clickedCol, clickedRow });
+            this->startDragging({ clickedCol, clickedRow });
         }
     }
     else if (!leftMouseButtonPressed && m_isDragging) {
         // Mouse button was released, stop dragging
-        resetDragging();
+        this->resetDragging();
     }
     else if (leftMouseButtonPressed && m_isDragging) {
         // Mouse button is being pressed and we are already dragging
-        updateDragging();
+        this->updateDragging();
     }
 
     // Keep track of the left mouse button state
     m_mouseButtonsState[SDL_BUTTON_LEFT] = leftMouseButtonPressed;
 }
 
-bool InputManager::isMouseButtonPressed(Uint8 button) {
-    if (button <= SDL_BUTTON_X2) {
-        //std::cout << "Button clicked" << std::endl;
-        return m_mouseButtonsState[button];
-    }
-    return false;
-}
+
 
 void InputManager::getMousePosition(int& x, int& y) {
     x = m_mouseX;
     y = m_mouseY;
 }
 
+
 void InputManager::startDragging(const JewelPos& initialPos) {
     m_isDragging = true;
-    m_jewelDragPos = initialPos; // Grid position where the drag started
     m_jewel = initialPos;        // This should be the correct position of the dragged jewel
 
+    // Initial position of my mouse 
     m_initialClickX = m_mouseX;
     m_initialClickY = m_mouseY;
 
@@ -92,11 +92,17 @@ void InputManager::startDragging(const JewelPos& initialPos) {
     m_jewelVisualPosY = OFFSETY + initialPos.posY * JEWELSIZEY;
 }
 
+void InputManager::resetDragging() {
+    // Reset the dragging state
+    m_isDragging = false;
+}
+
 
 void InputManager::updateDragging() {
     // Calculate the visual position based on the mouse movement
     int deltaX = m_mouseX - m_initialClickX;
     int deltaY = m_mouseY - m_initialClickY;
+
     m_jewelVisualPosX += deltaX;
     m_jewelVisualPosY += deltaY;
 
@@ -108,13 +114,17 @@ void InputManager::updateDragging() {
 
 bool InputManager::isDraggingEnded() {
     // Check if the left mouse button is released
-    return !isMouseButtonPressed(SDL_BUTTON_LEFT);
+    return !this->isMouseButtonPressed(SDL_BUTTON_LEFT);
 }
 
-void InputManager::resetDragging() {
-    // Reset the dragging state
-    m_isDragging = false;
+bool InputManager::isMouseButtonPressed(Uint8 button) {
+    if (button <= SDL_BUTTON_X2) {
+        //std::cout << "Button clicked" << std::endl;
+        return m_mouseButtonsState[button];
+    }
+    return false;
 }
+
 
 bool InputManager::isDraggingInProgress() const {
     return m_isDragging;
@@ -130,36 +140,29 @@ int InputManager::getJewelVisualPosY() const {
     return m_jewelVisualPosY;
 }
 
-void InputManager::handleFirstClick(int x, int y) {
-    firstClickPos = { x / (int)JEWELSIZEX, y / (int)JEWELSIZEY };
-    firstClickActive = true;
-}
 
-void InputManager::handleSecondClick(int x, int y) {
-    secondClickPos = { x / (int)JEWELSIZEX, y / (int)JEWELSIZEY };
-}
 
 bool InputManager::isFirstClickActive() const {
-    return firstClickActive;
+    return m_firstClickActive;
 }
 
 JewelPos InputManager::getFirstClickPos() const {
-    return firstClickPos;
+    return m_firstClickPos;
 }
 
 JewelPos InputManager::getSecondClickPos() const {
-    return secondClickPos;
+    return m_secondClickPos;
 }
 
 void InputManager::resetClicks() {
-    firstClickActive = false;
+    m_firstClickActive = false;
 }
 void InputManager::setFirstClickPos(const JewelPos& pos) {
-    firstClickPos = pos;
-    firstClickActive = true;
+    m_firstClickPos = pos;
+    m_firstClickActive = true;
 }
 
 void InputManager::setSecondClickPos(const JewelPos& pos) {
-    secondClickPos = pos;
+    m_secondClickPos = pos;
 }
 

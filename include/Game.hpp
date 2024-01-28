@@ -34,14 +34,35 @@ public:
 
 private:
 
-    // Load Textures and create Sprites into the sprites
+    // Initialize Methods
     bool loadSprites();
+    void initGridJewels();
+   
 
-    // Function to render the Grid of Jewels
+
+    /*
+    * EVENT METHODS
+    */
+    // Method to hanbdle all the SDL events, like button and quitting
+    bool handleEvents();
+    // Mouse clicking and mouse dragging
+    void handleMouseEvents(const SDL_Event& e);
+
+
+    /*
+    * Renderer METHODS
+    */
+    void render();
     void renderJewelGrid();
 
-    //Initialize the jewel Grid
-    void initGridJewels();
+  
+
+
+    /*
+    * Update Game States METHODS
+    */
+
+    void update();
 
     // Check for jewels that have matching pattern
     void checkAndRemoveMatches();
@@ -55,11 +76,8 @@ private:
     bool checkPotentialMatchAt(int x, int y);
 
     // Apply Gravity to the jewels after matching to fall down;
-
     void applyGravity();
 
-    // After Matching fill the empty spaces
-    void fillEmptySpaces();
 
     // Check if there is a match for more than 3 jewels
     bool isMatch(JewelType jewelType, int row, int col);
@@ -69,6 +87,11 @@ private:
 
     // Swap the Position of the two jewels in the jewel grid
     void swapJewels(const JewelPos& pos1, const JewelPos& pos2);
+
+
+    /*
+    * Variables 
+    */
 
     bool m_swapPerformed{false};
 
@@ -87,7 +110,6 @@ private:
    // Input from User handler
    InputManager m_inputManager;
 
-  
 
 
 };
