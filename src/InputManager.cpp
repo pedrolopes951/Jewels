@@ -38,7 +38,7 @@ void InputManager::update() {
     m_mouseX = x;
     m_mouseY = y;
 
-    bool leftMouseButtonPressed = SDL_GetMouseState(nullptr, nullptr) == SDL_BUTTON(SDL_BUTTON_LEFT); // Check if it was the left button pressed or not
+    bool leftMouseButtonPressed = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
 
     if (leftMouseButtonPressed && !m_isDragging) {
         // Mouse button is being pressed and we are not already dragging
@@ -46,14 +46,14 @@ void InputManager::update() {
         this->getMousePosition(mouseX, mouseY);
 
         // Convert mouse coordinates to grid position with offset (0,0) to (7,7)
-        int clickedRow = (mouseY - OFFSETY) / JEWELSIZEX;
-        int clickedCol = (mouseX - OFFSETX) / JEWELSIZEY;
+        int clickedRow = static_cast<int>(floor(static_cast<double>(mouseY - OFFSETY) / JEWELSIZEY));
+        int clickedCol = static_cast<int>(floor(static_cast<double>(mouseX - OFFSETX) / JEWELSIZEX));
+
+
+
 
         // Check if the clicked position is within the grid bounds
         if (clickedRow >= 0 && clickedRow < GRIDY && clickedCol >= 0 && clickedCol < GRIDX) {
-            /*std::cout << clickedRow << std::endl;
-            std::cout << clickedCol << std::endl;*/
-
             // Start dragging if a jewel was clicked
             this->startDragging({ clickedCol, clickedRow });
         }
