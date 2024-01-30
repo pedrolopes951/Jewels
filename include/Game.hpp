@@ -5,6 +5,7 @@
 #include "Sprite.hpp"
 #include <vector>
 #include "InputManager.hpp"
+#include "Timer.hpp"
 
 enum class JewelType {
     EMPTY,
@@ -110,7 +111,8 @@ private:
    // Input from User handler
    InputManager m_inputManager;
 
-
+   // Timer
+   Timer m_timer;
 
 };
 

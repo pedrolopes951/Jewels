@@ -4,7 +4,7 @@
 #include <cstdlib>  // Include this header for std::srand
 #include <ctime>    // Include this header for std::time
 
-Game::Game() : m_window(nullptr), m_inputManager() {
+Game::Game() : m_window(nullptr), m_inputManager(), m_timer{} {
     // Ensure that I have seed different for every rand()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
@@ -42,6 +42,10 @@ bool Game::init() {
 
     // Init the Grid of jewels
     this->initGridJewels();
+
+   
+
+    m_timer.start();
 
     // Other initialization code
 
@@ -156,6 +160,10 @@ void Game::update()
     // Updating for checking for matches
     this->checkForMatches();
 
+    // Update timer
+    m_timer.update(m_renderer);
+
+    
 }
 
 void Game::render()
@@ -208,6 +216,9 @@ void Game::render()
         m_swapPerformed = false;
     }
 
+
+    // Render the timer
+    m_timer.render(m_renderer);
 
 
     // Update the screen with any rendering performed since the previous call
