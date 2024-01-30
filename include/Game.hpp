@@ -6,6 +6,7 @@
 #include <vector>
 #include "InputManager.hpp"
 #include "Timer.hpp"
+#include "FpsManager.hpp"
 
 enum class JewelType {
     EMPTY,
@@ -113,6 +114,10 @@ private:
 
    // Timer
    Timer m_timer;
+
+   // Fps Manager
+   FpsManager m_fpsManager;
+
 
 };
 

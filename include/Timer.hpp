@@ -9,9 +9,9 @@ public:
     Timer();
     ~Timer();
 
-    void start();
-    void update(SDL_Renderer* renderer);
-    void render(SDL_Renderer* renderer);
+    void start(SDL_Renderer* renderer);
+    void update();
+    void render();
 
 private:
     // Init Timer
@@ -24,5 +24,8 @@ private:
     SDL_Texture* m_textTexture;
     int m_textWidth, m_textHeight;
 
-    void updateTimeText(SDL_Renderer* renderer);
+    // renderer ptr of the game class 
+    SDL_Renderer* m_renderer;
+
+    void updateTimeText();
 };

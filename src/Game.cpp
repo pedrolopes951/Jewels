@@ -44,8 +44,12 @@ bool Game::init() {
     this->initGridJewels();
 
    
+    // Start timer of game
+    m_timer.start(m_renderer);
 
-    m_timer.start();
+    // Start Fps for game
+    m_fpsManager.start(m_renderer);
+
 
     // Other initialization code
 
@@ -161,7 +165,10 @@ void Game::update()
     this->checkForMatches();
 
     // Update timer
-    m_timer.update(m_renderer);
+    m_timer.update();
+
+    // Update Fps Manage
+    m_fpsManager.update();
 
     
 }
@@ -218,7 +225,9 @@ void Game::render()
 
 
     // Render the timer
-    m_timer.render(m_renderer);
+    m_timer.render();
+
+    m_fpsManager.render();
 
 
     // Update the screen with any rendering performed since the previous call
@@ -519,12 +528,6 @@ bool Game::checkPotentialMatchAt(int y, int x) {
 
     return false;
 }
-
-
-
-
-
-
 
 
 void Game::swapJewels(const JewelPos& posA, const JewelPos& posB)

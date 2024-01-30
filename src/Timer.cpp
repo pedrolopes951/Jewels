@@ -16,21 +16,22 @@ Timer::~Timer() {
     }
 }
 
-void Timer::start() {
+void Timer::start(SDL_Renderer* renderer) {
+    m_renderer = renderer;
     m_startTicks = SDL_GetTicks();
 }
 
-void Timer::update(SDL_Renderer* renderer) {
-    updateTimeText(renderer);
+void Timer::update() {
+    updateTimeText();
 }
 
-void Timer::render(SDL_Renderer* renderer) {
+void Timer::render() {
     if (!m_textTexture) {
         return;
     }
 
     SDL_Rect renderQuad = { WIDTH - m_textWidth - 20, 20, m_textWidth, m_textHeight };
-    SDL_RenderCopy(renderer, m_textTexture, nullptr, &renderQuad);
+    SDL_RenderCopy(m_renderer, m_textTexture, nullptr, &renderQuad);
 }
 
 bool Timer::init()
@@ -48,7 +49,7 @@ bool Timer::init()
     return true;
 }
 
-void Timer::updateTimeText(SDL_Renderer* renderer) {
+void Timer::updateTimeText() {
     Uint32 time = (SDL_GetTicks() - m_startTicks) / 1000;
     std::stringstream timeStream;
     timeStream << time;
@@ -59,7 +60,7 @@ void Timer::updateTimeText(SDL_Renderer* renderer) {
         if (m_textTexture) {
             SDL_DestroyTexture(m_textTexture);
         }
-        m_textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        m_textTexture = SDL_CreateTextureFromSurface(m_renderer, textSurface);
         m_textWidth = textSurface->w;
         m_textHeight = textSurface->h;
         SDL_FreeSurface(textSurface);
