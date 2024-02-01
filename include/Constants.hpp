@@ -9,6 +9,7 @@ constexpr int JEWELSIZEY = 50;
 constexpr int OFFSETX = (WIDTH - GRIDX * JEWELSIZEX) / 2;
 constexpr int OFFSETY = (HEIGHT - GRIDY * JEWELSIZEY) / 2;
 constexpr double JEWELCOVERAGE = 0.8;
+constexpr int TIMERSECONDS = 60;
 
 enum class JewelType {
     EMPTY,
@@ -32,3 +33,10 @@ struct JewelPos {
         return !(*this == other);
     }
 };
+
+enum class GameState {
+    Setup,
+    Playing,
+    GameOver
+};
+

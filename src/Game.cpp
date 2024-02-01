@@ -4,7 +4,7 @@
 #include <cstdlib>  // Include this header for std::srand
 #include <ctime>    // Include this header for std::time
 
-Game::Game() : m_window(nullptr), m_inputManager(), m_timer{} {
+Game::Game() : m_window(nullptr), m_inputManager(), m_timer{}, m_currentState(GameState::Setup) {
     // Ensure that I have seed different for every rand()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
@@ -77,33 +77,82 @@ bool Game::loadSprites()
     return true;
 }
 
+void Game::handleSetupEvents() {
+    // Example setup handling
+    SDL_Event e;
+    while (SDL_PollEvent(&e) != 0) {
+        if (e.type == SDL_KEYDOWN) {
+            switch (e.key.keysym.sym) {
+            case SDLK_RETURN:
+                m_currentState = GameState::Playing;
+                break;
+                // Add more setup handling as needed
+            }
+        }
+    }
+}
+
+void Game::handleGameOverEvents()
+{
+    SDL_Event e;
+    while (SDL_PollEvent(&e) != 0) {
+        if (e.type == SDL_KEYDOWN) {
+            switch (e.key.keysym.sym) {
+            case SDLK_r:
+                // Restart the game
+                m_currentState = GameState::Setup;
+                resetGame();
+                break;
+            case SDLK_x:
+                // Exit the game
+                m_gameOver = true;
+                
+                break;
+            }
+        }
+    }
+}
+
+
 
 
 
 void Game::run() {
-    bool quit = false;
+    m_gameOver = false;
 
-    while (!quit) {
-        // Handle events
-        quit = this->handleEvents();
 
-        // Update events for the inputmanager and the grid of jewels
-        this->update();
+    while (!m_gameOver) {
+        switch (m_currentState) {
+            case GameState::Setup:
+                this->handleSetupEvents();
+                this->renderSetupScreen();
+                break;
+            case GameState::Playing:
+                // Handle events
+                this->handleEvents();
 
-        // Apply game logic that was updated before and render
-        this->render();
+                // Update events for the inputmanager and the grid of jewels
+                this->update();
 
+                // Apply game logic that was updated before and render
+                this->render();
+                break;
+            case GameState::GameOver:
+                this->handleGameOverEvents();
+                this->renderGameOverScreen();
+                break;
+        }
     }
 }
 
-bool Game::handleEvents()
+void Game::handleEvents()
 {
     SDL_Event e;
     while (SDL_PollEvent(&e) != 0)
     {
-        if (e.type == SDL_QUIT)
-        {
-            return  true;
+        if (e.type == SDL_QUIT) {
+            this->clear(); // Properly cleanup and close the game
+            m_gameOver = true; // Or set a flag to break the main loop
         }
         // Handle mouse click events
         if (e.type == SDL_MOUSEBUTTONDOWN)
@@ -111,7 +160,7 @@ bool Game::handleEvents()
             this->handleMouseEvents(e);
         }
     }
-    return false;
+    m_gameOver = false;
 }
 
 void Game::update()
@@ -134,7 +183,30 @@ void Game::update()
     // Update Fps Manage
     m_fpsManager.update();
 
+    if (m_timer.isFinished()) {
+        m_currentState = GameState::GameOver;
+    }
+
     
+}
+
+void Game::resetGame()
+{
+    // Reset grid
+    m_grid.initGridJewels();
+
+    m_grid.resetPoints();
+
+    // Reset timer with initial duration
+    m_timer.start(m_renderer);
+
+    // Reset points
+    m_points.reset();
+
+    // Optionally, reset any other game states or components as needed
+
+    // Set the game state back to playing
+    m_currentState = GameState::Playing;
 }
 
 void Game::render()
@@ -165,6 +237,66 @@ void Game::render()
 
 }
 
+void Game::renderSetupScreen() {
+    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE); // Black background
+    SDL_RenderClear(m_renderer);
+
+    SDL_Color whiteColor = { 255, 255, 255, 255 }; // White color
+    std::string setupText = "Press ENTER to start";
+    int x = (WIDTH - 300) / 2; // Estimate or calculate based on text width
+    int y = HEIGHT / 2;
+    renderText(setupText, x, y, whiteColor);
+
+    SDL_RenderPresent(m_renderer);
+}
+
+void Game::renderGameOverScreen() {
+    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE); // Black background
+    SDL_RenderClear(m_renderer);
+
+    SDL_Color whiteColor = { 255, 255, 255, 255 }; // White color
+    std::string gameOverText = "Game Over! Press R to restart or X to exit";
+    int x = (WIDTH - 500) / 2; // Estimate or calculate based on text width
+    int y = HEIGHT / 2;
+    renderText(gameOverText, x, y, whiteColor);
+
+    SDL_RenderPresent(m_renderer);
+}
+
+void Game::renderText(const std::string& text, int x, int y, SDL_Color color) {
+    // Ensure the font is loaded
+    TTF_Font* font = TTF_OpenFont("assets/fonts/RobotoLight.ttf", 24); // Adjust as needed
+    if (!font) {
+        std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
+        return;
+    }
+
+    // Create a surface from the text
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), color);
+    if (!surface) {
+        TTF_CloseFont(font);
+        std::cerr << "Failed to create text surface: " << TTF_GetError() << std::endl;
+        return;
+    }
+
+    // Create a texture from the surface
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+    if (!texture) {
+        SDL_FreeSurface(surface);
+        TTF_CloseFont(font);
+        std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    // Set the rendering space and render to screen
+    SDL_Rect renderQuad = { x, y, surface->w, surface->h };
+    SDL_RenderCopy(m_renderer, texture, nullptr, &renderQuad);
+
+    // Clean up
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
+    TTF_CloseFont(font);
+}
 
 
 void Game::handleMouseEvents(const SDL_Event& e)

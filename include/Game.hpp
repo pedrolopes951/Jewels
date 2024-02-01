@@ -30,24 +30,29 @@ private:
 
     // Initialize Methods
     bool loadSprites();
-    void initGridJewels();
    
+
 
 
     /*
     * EVENT METHODS
     */
     // Method to hanbdle all the SDL events, like button and quitting
-    bool handleEvents();
+    void handleEvents();
     // Mouse clicking and mouse dragging
     void handleMouseEvents(const SDL_Event& e);
+    void handleSetupEvents();
+    void handleGameOverEvents();
 
 
     /*
     * Renderer METHODS
     */
     void render();
-    void renderJewelGrid();
+    void renderSetupScreen();
+    void renderGameOverScreen();
+    void renderText(const std::string& text, int x, int y, SDL_Color color);
+
 
   
 
@@ -58,36 +63,12 @@ private:
 
     void update();
 
-    // Check for jewels that have matching pattern
-    void checkAndRemoveMatches();
-
-    // Check if any matches exist in the grid
-    void checkForMatches();
-
-    // check temporaly if the swap is valid
-    bool willSwapMatch(const JewelPos& posA, const JewelPos& posB);
-
-    bool checkPotentialMatchAt(int x, int y);
-
-    // Apply Gravity to the jewels after matching to fall down;
-    void applyGravity();
-
-
-    // Check if there is a match for more than 3 jewels
-    bool isMatch(JewelType jewelType, int row, int col);
-
-    // Convert the visual position of the jewl to grid coordinates
-    JewelPos snapToGrid(int x, int y);
-
-    // Swap the Position of the two jewels in the jewel grid
-    void swapJewels(const JewelPos& pos1, const JewelPos& pos2);
-
+    void resetGame();
 
     /*
     * Variables 
     */
 
-    bool m_swapPerformed{false};
 
    // SDL Functions
    SDL_Window* m_window;
@@ -116,6 +97,13 @@ private:
    // Points class
    Points m_points;
 
+   // Game State enum 
+   GameState m_currentState;
+
+   int m_gameTime; // Total game time in seconds
+   bool m_gameOver; // Flag for game over state
+
+ 
 
 };
 
