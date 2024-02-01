@@ -15,6 +15,7 @@ public:
     GridManager();
     ~GridManager();
     bool loadSprites(SDL_Window* window, SDL_Renderer* renderer);
+    void handleClickedJewel(const JewelPos& jewelpos, InputManager& input_manager);
     void initGridJewels();
     void checkForMatches();
     void checkAndRemoveMatches();

@@ -50,6 +50,32 @@ bool GridManager::loadSprites(SDL_Window* window, SDL_Renderer* renderer)
     return false;
 }
 
+void GridManager::handleClickedJewel(const JewelPos& jewelpos, InputManager& input_manager)
+{
+    
+    // Check if the click is within the bounds of the grid
+    if (jewelpos.posX < 0 || jewelpos.posX >= GRIDX || jewelpos.posY < 0 || jewelpos.posY >= GRIDY) {
+        return; // Click is outside the grid, so do nothing
+    }
+
+    // First click
+    if (!input_manager.isFirstClickActive()) {
+        input_manager.setFirstClickPos(jewelpos); // Stores where the first click was in the input manager class
+    }
+    // Second click
+    else {
+        if (jewelpos != input_manager.getFirstClickPos() && this->willSwapMatch(input_manager.getFirstClickPos(), jewelpos)) {
+            this->swapJewels(input_manager.getFirstClickPos(), jewelpos);
+            this->checkAndRemoveMatches();
+            this->applyGravity();
+        }
+        else {
+            std::cout << "Swap not valid or does not result in a match." << std::endl;
+        }
+        input_manager.resetClicks();
+    }
+}
+
 void GridManager::initGridJewels()
 {
     // Initialize the 2D vector for storing jewel types 8x8
