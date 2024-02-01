@@ -149,7 +149,9 @@
     <ClCompile Include="include\Constants.hpp" />
     <ClCompile Include="src\FpsManager.cpp" />
     <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\GridManager.cpp" />
     <ClCompile Include="src\InputManager.cpp" />
+    <ClCompile Include="src\Jewel.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Sprite.cpp" />
     <ClCompile Include="src\Timer.cpp" />
@@ -157,7 +159,9 @@
   <ItemGroup>
     <ClInclude Include="include\FpsManager.hpp" />
     <ClInclude Include="include\Game.hpp" />
+    <ClInclude Include="include\GridManager.hpp" />
     <ClInclude Include="include\InputManager.hpp" />
+    <ClInclude Include="include\Jewel.hpp" />
     <ClInclude Include="include\Sprite.hpp" />
     <ClInclude Include="include\Timer.hpp" />
   </ItemGroup>

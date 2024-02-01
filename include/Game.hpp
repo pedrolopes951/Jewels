@@ -7,16 +7,8 @@
 #include "InputManager.hpp"
 #include "Timer.hpp"
 #include "FpsManager.hpp"
+#include "GridManager.hpp"
 
-enum class JewelType {
-    EMPTY,
-    BLACK,
-    SILVER,
-    PINK,
-    BLUE,
-    ORANGE
-    
-};
 
 
 
@@ -111,6 +103,9 @@ private:
 
    // Input from User handler
    InputManager m_inputManager;
+
+   // Grid Manager
+   GridManager m_grid;
 
    // Timer
    Timer m_timer;
