@@ -23,6 +23,8 @@ public:
     // Reset the points to 0
     void reset();
 
+    const int& getPoints() const;
+
 private:
     // Update the texture used for displaying points
     void updatePointsText();

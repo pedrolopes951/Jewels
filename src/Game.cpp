@@ -43,8 +43,6 @@ bool Game::init() {
     // Init the Grid of jewels
     m_grid.initGridJewels();
    
-    // Start timer of game
-    m_timer.start(m_renderer);
 
     // Start Fps for game
     m_fpsManager.start(m_renderer);
@@ -85,6 +83,7 @@ void Game::handleSetupEvents() {
             switch (e.key.keysym.sym) {
             case SDLK_RETURN:
                 m_currentState = GameState::Playing;
+                m_timer.start(m_renderer);
                 break;
                 // Add more setup handling as needed
             }
@@ -255,7 +254,7 @@ void Game::renderGameOverScreen() {
     SDL_RenderClear(m_renderer);
 
     SDL_Color whiteColor = { 255, 255, 255, 255 }; // White color
-    std::string points = std::string("Points : ") + std::to_string(m_grid.getPoints());
+    std::string points = std::string("Points : ") + std::to_string(m_points.getPoints());
     std::string gameOverText = "Game Over! Press R to restart or X to exit";
     int x = (WIDTH - 500) / 2; // Estimate or calculate based on text width
     int y = HEIGHT / 2;
@@ -321,3 +320,4 @@ void Game::clear() {
     SDL_DestroyWindow(m_window);
     SDL_Quit();
 }
+

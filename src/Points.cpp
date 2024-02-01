@@ -77,3 +77,9 @@ void Points::reset() {
     m_points = 0;
     updatePointsText(); // Update the points display after resetting
 }
+
+const int& Points::getPoints() const
+{
+    // TODO: insert return statement here
+    return m_points;
+}

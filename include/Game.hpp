@@ -26,6 +26,7 @@ public:
     // Clear window
     void clear();
 
+
 private:
 
     // Initialize Methods
