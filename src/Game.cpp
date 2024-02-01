@@ -255,9 +255,11 @@ void Game::renderGameOverScreen() {
     SDL_RenderClear(m_renderer);
 
     SDL_Color whiteColor = { 255, 255, 255, 255 }; // White color
+    std::string points = std::string("Points : ") + std::to_string(m_grid.getPoints());
     std::string gameOverText = "Game Over! Press R to restart or X to exit";
     int x = (WIDTH - 500) / 2; // Estimate or calculate based on text width
     int y = HEIGHT / 2;
+    renderText(points, x + WIDTH/4, y - 40, whiteColor);
     renderText(gameOverText, x, y, whiteColor);
 
     SDL_RenderPresent(m_renderer);
