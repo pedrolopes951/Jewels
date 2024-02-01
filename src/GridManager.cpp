@@ -89,6 +89,13 @@ void GridManager::initGridJewels()
 
         }
     }
+    this->checkForMatches();
+    if (!m_initialcheck) {
+        // If it's the first check, indicate it's done and reset points
+        m_initialcheck = true;
+        this->resetPoints();
+        // Reset points somehow. This might require a call to a Points method.
+    }
 }
 
 void GridManager::checkForMatches()
@@ -127,32 +134,61 @@ void GridManager::checkForMatches()
 
 void GridManager::checkAndRemoveMatches()
 {
-    // Vector to store the jewels which are matching 
+    // Vector to store the jewels which are matching
     std::vector<std::vector<bool>> matched(GRIDX, std::vector<bool>(GRIDY, false));
+    int matchesThisCheck = 0; // Variable to count matches in this check
 
     // Check for horizontal matches
     for (int row = 0; row < GRIDY; row++) {
-        for (int col = 0; col <= GRIDX - 3; col++) {
+        for (int col = 0; col <= GRIDX - 3; ) {
             if (m_jewelGrid[row][col] != JewelType::EMPTY &&
                 m_jewelGrid[row][col] == m_jewelGrid[row][col + 1] &&
                 m_jewelGrid[row][col] == m_jewelGrid[row][col + 2]) {
-                matched[row][col] = matched[row][col + 1] = matched[row][col + 2] = true;
+
+                // Start of a match
+                int matchStart = col;
+
+                // Find the end of the match
+                while (col < GRIDX && m_jewelGrid[row][col] == m_jewelGrid[row][matchStart]) {
+                    matched[row][col] = true;
+                    col++;
+                }
+
+                // Calculate points for this match
+                matchesThisCheck += (col - matchStart);
+            }
+            else {
+                col++;
             }
         }
     }
 
     // Check for vertical matches
     for (int col = 0; col < GRIDY; col++) {
-        for (int row = 0; row <= GRIDX - 3; row++) {
+        for (int row = 0; row <= GRIDX - 3; ) {
             if (m_jewelGrid[row][col] != JewelType::EMPTY &&
                 m_jewelGrid[row][col] == m_jewelGrid[row + 1][col] &&
                 m_jewelGrid[row][col] == m_jewelGrid[row + 2][col]) {
-                matched[row][col] = matched[row + 1][col] = matched[row + 2][col] = true;
+
+                // Start of a match
+                int matchStart = row;
+
+                // Find the end of the match
+                while (row < GRIDY && m_jewelGrid[row][col] == m_jewelGrid[matchStart][col]) {
+                    matched[row][col] = true;
+                    row++;
+                }
+
+                // Calculate points for this match
+                matchesThisCheck += (row - matchStart);
+            }
+            else {
+                row++;
             }
         }
     }
 
-    // Replace matched jewels with EMPTY i.e to say that their sprite won't be renderer on the vector which stores de jewels 
+    // Now, remove matched jewels and update the points
     for (int row = 0; row < GRIDY; row++) {
         for (int col = 0; col < GRIDX; col++) {
             if (matched[row][col]) {
@@ -160,6 +196,9 @@ void GridManager::checkAndRemoveMatches()
             }
         }
     }
+
+    // Update points
+    m_pointsPerMatch += matchesThisCheck;
 }
 
 
@@ -326,6 +365,17 @@ bool GridManager::willSwapMatch(const JewelPos& posA, const JewelPos& posB)
      std::swap(m_jewelGrid[posA.posY][posA.posX], m_jewelGrid[posB.posY][posB.posX]);
  
      return matchA || matchB;
+}
+
+void GridManager::resetPoints()
+{
+    m_pointsPerMatch = 0;
+}
+
+const int& GridManager::getPoints() const
+{
+    // TODO: insert return statement here
+    return m_pointsPerMatch;
 }
 
 bool GridManager::checkPotentialMatchAt(int y, int x)

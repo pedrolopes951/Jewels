@@ -8,7 +8,7 @@
 #include "Timer.hpp"
 #include "FpsManager.hpp"
 #include "GridManager.hpp"
-
+#include "Points.hpp"
 
 
 
@@ -112,6 +112,9 @@ private:
 
    // Fps Manager
    FpsManager m_fpsManager;
+
+   // Points class
+   Points m_points;
 
 
 };

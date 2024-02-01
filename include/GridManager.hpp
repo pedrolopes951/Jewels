@@ -28,7 +28,12 @@ public:
     void swapJewels(const JewelPos& posA, const JewelPos& posB);
     bool willSwapMatch(const JewelPos& posA, const JewelPos& posB);
 
+    void resetPoints();
+    const int& getPoints() const;
+
 private:
+    bool m_initialcheck{ false };
+    int m_pointsPerMatch{0};
 
     bool m_swapPerformed{ false };
     // Map of jewel sprites

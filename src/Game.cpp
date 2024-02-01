@@ -50,6 +50,12 @@ bool Game::init() {
     m_fpsManager.start(m_renderer);
 
 
+    // Start Points for game
+    m_points.start(m_renderer);
+
+
+
+
     // Other initialization code
 
     return true;
@@ -117,6 +123,11 @@ void Game::update()
     //this->checkForMatches();
     m_grid.checkForMatches();
 
+    // After checking for matches and making all necessary updates
+    int pointsThisFrame = m_grid.getPoints();
+    m_points.addPoints(pointsThisFrame); // Assuming pointsClass is an instance of Points
+    m_grid.resetPoints(); // Reset points in grid manager for the next frame
+
     // Update timer
     m_timer.update();
 
@@ -141,6 +152,9 @@ void Game::render()
     m_timer.render();
 
     m_fpsManager.render();
+
+    // Render points
+    m_points.render();
 
 
     // Update the screen with any rendering performed since the previous call
