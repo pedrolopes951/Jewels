@@ -1,14 +1,19 @@
-# Project Name: Jewel Match Game
+# Jewel Match Game
 
 ## Overview
-This project is a match-three puzzle game where players swap jewels to match three or more of the same kind in a row or column. The objective is to score as many points as possible within a set time limit.
+This project is a match-three puzzle game where players swap jewels to match three or more of the same kind in a row or column. The objective is to score as many points as possible within a set time limit of 1 min.
 
 ## Features
-- Grid-based match-three puzzle mechanics
-- Time-limited gameplay with customizable duration
-- Scoring system based on the number of jewels matched
-- Dynamic difficulty adjustment based on gameplay progression
-- Restart and exit options post-gameplay
+- Grid-based match-three puzzle mechanics.
+- Time-limited gameplay.
+- Scoring system based on the number of jewels matched.
+- Restart and exit options post-gameplay.
+
+## Future Features
+- Sound based clicking and matching
+- Tracking of max points per player
+- Improve "Gravity" motion of jewels that get matched
+...
 
 ## How to Play
 1. Run the game executable.
@@ -20,27 +25,17 @@ This project is a match-three puzzle game where players swap jewels to match thr
 ## Requirements
 - SDL2 library for rendering, window management, and event handling.
 - SDL2_ttf for text rendering.
+- SDL2_image for image loading.
 
 ## Installation
-Describe the steps needed to compile and run your project, including where to place SDL2 and SDL2_ttf libraries.
+This project was built using Visual Studio IDE for the x86 Windows platform. To compile, open the provided solution file in Visual Studio and build the solution. Ensure that SDL2, SDL2_ttf, and SDL2_image libraries are properly linked.
 
 ## Compilation and Running
-Provide specific commands to compile the project, including any flags for linking SDL2 and SDL2_ttf.
+The project uses C++14 standards. No additional external libraries were used besides SDL2, SDL2_ttf, and SDL2_image. After opening the solution in Visual Studio, simply build the solution to compile the project.
 
 ## Configuration
-Explain how to configure game settings (if applicable), such as changing the time limit or adjusting difficulty.
+No additional configuration is required for basic gameplay. Settings such as the time limit or difficulty adjustments are hardcoded and can be modified in the source code if necessary.
 
-## Credits
-- Your Name: [Your Full Name]
-- SDL2 Library: [Link to SDL2]
-- SDL2_ttf: [Link to SDL2_ttf]
-
-## License
-Include license information here if applicable.
-
-## Acknowledgments
-Mention any resources, tutorials, or external code snippets used in your project.
-
----
-
-Remember to replace placeholder sections with specific information about your project. For example, under "Installation" and "Compilation and Running," provide detailed instructions that are relevant to your game, including any necessary steps to set up SDL2 and SDL2_ttf on the target platform. The goal is to make it easy for the reviewer to understand, compile, and run your game without needing to ask for further instructions.
+## Credits (Contact)
+- Pedro Lopes (pedro.miguel.lopes951@gmail.com)
+- SDL2: [https://www.libsdl.org/index.php](https://www.libsdl.org/index.php)
