@@ -1,6 +1,6 @@
 #include "GridManager.hpp"
 
-GridManager::GridManager()
+GridManager::GridManager() : m_initialcheck{ false }, m_pointsPerMatch{ 0 }, m_swapPerformed{ false }
 {
 }
 
@@ -53,9 +53,9 @@ bool GridManager::loadSprites(SDL_Window* window, SDL_Renderer* renderer)
 void GridManager::handleClickedJewel(const JewelPos& jewelpos, InputManager& input_manager)
 {
     
-    // Check if the click is within the bounds of the grid
+    // Check if the click is within the bounds of the grid, do nothing
     if (jewelpos.posX < 0 || jewelpos.posX >= GRIDX || jewelpos.posY < 0 || jewelpos.posY >= GRIDY) {
-        return; // Click is outside the grid, so do nothing
+        return;
     }
 
     // First click
@@ -70,7 +70,6 @@ void GridManager::handleClickedJewel(const JewelPos& jewelpos, InputManager& inp
             this->applyGravity();
         }
         else {
-            std::cout << "Swap not valid or does not result in a match." << std::endl;
         }
         input_manager.resetClicks();
     }
@@ -78,7 +77,6 @@ void GridManager::handleClickedJewel(const JewelPos& jewelpos, InputManager& inp
 
 void GridManager::initGridJewels()
 {
-    // Initialize the 2D vector for storing jewel types 8x8
     m_jewelGrid.resize(GRIDY, std::vector<JewelType>(GRIDY, JewelType::EMPTY));
 
     for (int row = 0; row < GRIDY; row++)
@@ -91,42 +89,30 @@ void GridManager::initGridJewels()
     }
     this->checkForMatches();
     if (!m_initialcheck) {
-        // If it's the first check, indicate it's done and reset points
         m_initialcheck = true;
         this->resetPoints();
-        // Reset points somehow. This might require a call to a Points method.
     }
 }
 
 void GridManager::checkForMatches()
 {
-    // This flag will indicate whether we've found a match in the current iteration
     bool matchesFound = true;
 
-    // We'll keep checking for matches as long as the flag is true
     while (matchesFound) {
-        // Initially, assume no matches are found in this iteration
         matchesFound = false;
 
-        // Iterate through each cell in the grid
         for (int row = 0; row < GRIDX; ++row) {
             for (int col = 0; col < GRIDY; ++col) {
                 if (this->isMatch(m_jewelGrid[row][col], row, col)) {
-                    // If a match is found, set the flag to true and exit the inner loop
                     matchesFound = true;
-                    break; // Exit the inner for loop
+                    break; 
                 }
             }
-            // Exit the outer for loop if a match was found
             if (matchesFound) break;
         }
 
-        // If a match was found during this iteration
         if (matchesFound) {
-            // Remove the matched jewels and update the grid
             this->checkAndRemoveMatches();
-
-            // Make the jewels fall down to fill the empty spaces
             this->applyGravity();
         }
     }
@@ -188,7 +174,7 @@ void GridManager::checkAndRemoveMatches()
         }
     }
 
-    // Now, remove matched jewels and update the points
+    // remove matched jewels and update the points
     for (int row = 0; row < GRIDY; row++) {
         for (int col = 0; col < GRIDX; col++) {
             if (matched[row][col]) {
@@ -197,14 +183,12 @@ void GridManager::checkAndRemoveMatches()
         }
     }
 
-    // Update points
     m_pointsPerMatch += matchesThisCheck;
 }
 
 
 void GridManager::applyGravity()
 {
-    // TODO: Apply some "drag" to the pieces falling for the user experience
     for (int col = 0; col < GRIDX; col++) {
         int emptyRow = -1; // Start with no empty row found
         for (int row = GRIDY - 1; row >= 0; row--) {
@@ -254,7 +238,7 @@ JewelPos GridManager::snapToGrid(int x, int y, const JewelPos& original_pos)
     double cellArea = JEWELSIZEX * JEWELSIZEY;
     double overlapPercentage = overlapArea / cellArea;
 
-    // Check if the overlap is at least 80% (Changeable)
+    // Check if the overlap is at least  (Changeable)
     if (overlapPercentage >= JEWELCOVERAGE) {
         // Clamp grid coordinates to grid dimensions
         gridPosX = std::max(0, std::min(gridPosX, GRIDX - 1));
@@ -263,7 +247,6 @@ JewelPos GridManager::snapToGrid(int x, int y, const JewelPos& original_pos)
         return { gridPosX, gridPosY };
     }
     else {
-        // If the overlap is less than 80%, return the original position
         return original_pos;
     }
 }
@@ -295,7 +278,6 @@ void GridManager::renderJewelGrid(SDL_Renderer* renderer,InputManager& input_man
 
     // If a jewel is being dragged, render it at the dragged position
     if (input_manager.isDraggingInProgress()) {
-        // Get the position of the jewel being dragged
         int dragX = input_manager.getJewelVisualPosX();
         int dragY = input_manager.getJewelVisualPosY();
         JewelPos draggedJewelPos = input_manager.getDraggedJewel();
@@ -303,7 +285,6 @@ void GridManager::renderJewelGrid(SDL_Renderer* renderer,InputManager& input_man
 
         // Render the dragged jewel sprite at the mouse cursor position
         m_jewelSprites[draggedJewelType].render(renderer, dragX, dragY, JEWELSIZEX, JEWELSIZEY);
-        //std::cout << "Swapping jewels at mouse cursor: " << draggedJewelPos.posX << "," << draggedJewelPos.posY << std::endl;
 
     }
     if (input_manager.isDraggingEnded()) {
@@ -312,7 +293,6 @@ void GridManager::renderJewelGrid(SDL_Renderer* renderer,InputManager& input_man
             JewelPos finalPos = this->snapToGrid(input_manager.getJewelVisualPosX(), input_manager.getJewelVisualPosY(), input_manager.getDraggedJewel());
 
             if (finalPos != originalPos && this->willSwapMatch(originalPos, finalPos)) {
-                //std::cout << "Performing Swap: " << originalPos.posX << "," << originalPos.posY << " with " << finalPos.posX << "," << finalPos.posY << std::endl;
                 this->swapJewels(originalPos, finalPos);
 
                 m_swapPerformed = true;
@@ -320,7 +300,6 @@ void GridManager::renderJewelGrid(SDL_Renderer* renderer,InputManager& input_man
                 this->applyGravity();
             }
             else {
-                //std::cout << "Swap does not result in a match. Swap not performed." << std::endl;
             }
             input_manager.resetDragging();
         }
@@ -342,12 +321,10 @@ void GridManager::swapJewels(const JewelPos& posA, const JewelPos& posB)
             (posA.posY == posB.posY && std::abs(posA.posX - posB.posX) == 1);
 
         if (isAdjacent) {
-            // Swap the jewels in the grid
             std::swap(m_jewelGrid[posA.posY][posA.posX], m_jewelGrid[posB.posY][posB.posX]);
         }
         else {
-            // If not adjacent, do nothing or handle the situation as needed
-            // Make a sound maybe if there is no match 
+            // If not adjacent, do nothing 
         }
     }
 }
@@ -374,7 +351,6 @@ void GridManager::resetPoints()
 
 const int& GridManager::getPoints() const
 {
-    // TODO: insert return statement here
     return m_pointsPerMatch;
 }
 
@@ -427,7 +403,7 @@ bool GridManager::checkPotentialMatchAt(int y, int x)
 bool GridManager::isMatch(JewelType jewelType, int row, int col)
 {
     // Compares the actual jewel with the adjacent cells to the left,right,up and down
-        // Check at least 2 jewels to the left
+      // Check at least 2 jewels to the left
     if (col >= 2 &&
         m_jewelGrid[row][col - 1] == jewelType &&
         m_jewelGrid[row][col - 2] == jewelType) {

@@ -1,9 +1,7 @@
-// FpsManager.cpp
-
 #include "FpsManager.hpp"
 #include <iostream>
 
-FpsManager::FpsManager() : m_lastTime(0), m_frameCount(0), m_fps(0.0), m_fpsTexture(nullptr), m_font(nullptr), m_fpsTextColor{ 255, 255, 255, 255 } {
+FpsManager::FpsManager() : m_lastTime(0), m_frameCount(0), m_fps(0.0), m_fpsTexture(nullptr), m_font(nullptr), m_fpsTextColor{ ColorText::WHITE, ColorText::WHITE, ColorText::WHITE, ColorText::WHITE } {
     if (!this->init())
         std::cerr << "Error: FpsManager Init Failed" << std::endl;
 }
@@ -41,7 +39,7 @@ bool FpsManager::init() {
         return false;
     }
 
-    m_font = TTF_OpenFont("assets/fonts/RobotoLight.ttf", 34); // Load your font
+    m_font = TTF_OpenFont("assets/fonts/RobotoLight.ttf", SIZETEXT); 
     if (!m_font) {
         std::cerr << "Error opening font: " << TTF_GetError() << std::endl;
         return false;

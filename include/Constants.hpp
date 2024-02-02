@@ -9,7 +9,9 @@ constexpr int JEWELSIZEY = 50;
 constexpr int OFFSETX = (WIDTH - GRIDX * JEWELSIZEX) / 2;
 constexpr int OFFSETY = (HEIGHT - GRIDY * JEWELSIZEY) / 2;
 constexpr double JEWELCOVERAGE = 0.8;
-constexpr int TIMERSECONDS = 5;
+constexpr int TIMERSECONDS = 60;
+constexpr int SIZETEXT = 34;
+
 
 enum class JewelType {
     EMPTY,
@@ -28,7 +30,6 @@ struct JewelPos {
         return posX == other.posX && posY == other.posY;
     }
 
-    // Overload the '!=' operator
     bool operator!=(const JewelPos& other) const {
         return !(*this == other);
     }
@@ -40,3 +41,8 @@ enum class GameState {
     GameOver
 };
 
+enum ColorText
+{
+    BLACK = 0,
+    WHITE = 255
+};

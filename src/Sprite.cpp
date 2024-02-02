@@ -6,7 +6,6 @@ Sprite::Sprite() : m_texture(nullptr) {
 }
 
 Sprite::~Sprite() {
-    // Destructor implementation
     if (m_texture) {
         SDL_DestroyTexture(m_texture);
     }

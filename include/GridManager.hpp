@@ -17,25 +17,26 @@ public:
     bool loadSprites(SDL_Window* window, SDL_Renderer* renderer);
     void handleClickedJewel(const JewelPos& jewelpos, InputManager& input_manager);
     void initGridJewels();
-    void checkForMatches();
-    void checkAndRemoveMatches();
-    bool checkPotentialMatchAt(int y, int x);
-    void applyGravity();
-    JewelPos snapToGrid(int x, int y,const JewelPos& original_pos);
-
     void renderJewelGrid(SDL_Renderer* renderer,  InputManager& input_manager);
-
-    void swapJewels(const JewelPos& posA, const JewelPos& posB);
-    bool willSwapMatch(const JewelPos& posA, const JewelPos& posB);
-
+    void checkForMatches();
     void resetPoints();
     const int& getPoints() const;
 
 private:
-    bool m_initialcheck{ false };
-    int m_pointsPerMatch{0};
 
-    bool m_swapPerformed{ false };
+    void checkAndRemoveMatches();
+    bool checkPotentialMatchAt(int y, int x);
+    void applyGravity();
+    JewelPos snapToGrid(int x, int y, const JewelPos& original_pos);
+    void swapJewels(const JewelPos& posA, const JewelPos& posB);
+    bool willSwapMatch(const JewelPos& posA, const JewelPos& posB);
+
+
+    bool m_initialcheck;
+    int m_pointsPerMatch;
+
+    bool m_swapPerformed;
+
     // Map of jewel sprites
     std::map<JewelType, Sprite> m_jewelSprites;
 
@@ -43,5 +44,4 @@ private:
     std::vector<std::vector<JewelType>> m_jewelGrid;
 
     bool isMatch(JewelType jewelType, int row, int col);
-    // Additional private methods and members as necessary
 };

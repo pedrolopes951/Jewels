@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 
-Points::Points() : m_points(0), m_pointsTexture(nullptr), m_font(nullptr), m_color({ 255, 255, 255, 255 }) {
+Points::Points() : m_points(0), m_pointsTexture(nullptr), m_font(nullptr), m_color({ ColorText::WHITE, ColorText::WHITE, ColorText::WHITE, ColorText::WHITE }) {
     if (!this->init())
         std::cerr << "Error: Points Init Failed" << std::endl;
 }
@@ -22,7 +22,7 @@ bool Points::init() {
         return false;
     }
 
-    m_font = TTF_OpenFont("assets/fonts/RobotoLight.ttf", 34); // Adjust font size as needed
+    m_font = TTF_OpenFont("assets/fonts/RobotoLight.ttf", SIZETEXT); 
     if (!m_font) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
         return false;
@@ -35,8 +35,8 @@ void Points::start(SDL_Renderer* renderer) {
 }
 
 void Points::addPoints(int count) {
-    m_points += count; // Increment points by count
-    updatePointsText(); // Update the text texture with the new points value
+    m_points += count; 
+    this->updatePointsText(); 
 }
 
 void Points::updatePointsText() {
@@ -61,7 +61,6 @@ void Points::render() {
         return;
     }
 
-    // Calculate the total grid width
     int totalGridWidth = GRIDX * JEWELSIZEX;
 
     // Position the points display centered relative to the grid's position
@@ -75,11 +74,10 @@ void Points::render() {
 
 void Points::reset() {
     m_points = 0;
-    updatePointsText(); // Update the points display after resetting
+    updatePointsText(); 
 }
 
 const int& Points::getPoints() const
 {
-    // TODO: insert return statement here
     return m_points;
 }

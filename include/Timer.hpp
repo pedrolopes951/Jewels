@@ -13,7 +13,7 @@ public:
     void update();
     void render();
 
-    bool isFinished() const; // Check if the timer has finished
+    bool isFinished() const; 
 
 
 private:
@@ -28,11 +28,10 @@ private:
     int m_textWidth, m_textHeight;
 
 
-    int m_duration; // Duration of the timer in seconds
-    bool m_finished; // Flag to indicate if the timer has finished
+    int m_duration; 
+    bool m_finished; 
 
 
-    // renderer ptr of the game class 
     SDL_Renderer* m_renderer;
 
     void updateTimeText();

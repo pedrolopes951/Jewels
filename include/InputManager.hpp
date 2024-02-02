@@ -8,12 +8,10 @@
 class InputManager {
 public:
     InputManager();
-
-    
+    ~InputManager();
 
     // Update input state
     void update();
-
 
     // Check if a mouse button is currently pressed
     bool isMouseButtonPressed(Uint8 button);
@@ -44,7 +42,6 @@ public:
     int getJewelVisualPosX() const;
     int getJewelVisualPosY() const;
 
-    // Add new methods for click-based swapping
     bool isFirstClickActive() const;
     JewelPos getFirstClickPos() const;
     JewelPos getSecondClickPos() const;
@@ -84,7 +81,6 @@ private:
     // Check if the leftbutton from the last frame 
     bool m_wasLeftMouseButtonDown;
 
-    // Add new members for the click-based swapping
     bool m_firstClickActive;
     JewelPos m_firstClickPos;
     JewelPos m_secondClickPos;

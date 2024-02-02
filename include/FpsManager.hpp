@@ -3,6 +3,7 @@
 #include <SDL_ttf.h>
 #include <string>
 #include <sstream>
+#include "Constants.hpp"
 
 class FpsManager {
 public:
@@ -26,7 +27,6 @@ private:
     TTF_Font* m_font;
     std::string m_fpsText;
 
-    // renderer ptr of the game class 
     SDL_Renderer* m_renderer;
 
 
