@@ -24,7 +24,7 @@ This project is a match-three puzzle game where players swap jewels to match thr
 
 ## Requirements
 - SDL2 library for rendering, window management, and event handling.
-- SDL2_ttf for text rendering.
+- SDL2_ttf for text rendering. 
 - SDL2_image for image loading.
 
 ## Installation
