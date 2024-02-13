@@ -1,5 +1,7 @@
 # Jewel Match Game
 
+![Screenshot](game.png)
+
 ## Overview
 This project is a match-three puzzle game where players swap jewels to match three or more of the same kind in a row or column. The objective is to score as many points as possible within a set time limit of 1 min.
 
